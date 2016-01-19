@@ -44,8 +44,6 @@ def main():
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
         # Boton Nuevo
-        btn_nuevo = cargar_imagen("nuevo.png")
-        screen.blit(pacman_intro,(900/3,20))
         if (0< mouse[0] <60) and (0< mouse[1] <96):
             # Boton Nuevo over
             pygame.draw.rect(screen, [79,255,5] ,(0, 0, 60, 96)) 
@@ -98,6 +96,18 @@ def main():
                 print "Salir"
         else:
             pygame.draw.rect(screen, [255,0,0] ,(0,384,60,96))# boton salir
+        
+        btn_nuevo = pygame.image.load("imagenes/nuevo.png").convert_alpha()
+        btn_dibujar = pygame.image.load("imagenes/dibujar.png").convert_alpha()
+        btn_tachuela = pygame.image.load("imagenes/tachuela.png").convert_alpha()
+        btn_mover = pygame.image.load("imagenes/mover.png").convert_alpha()
+        btn_salir = pygame.image.load("imagenes/salir.png").convert_alpha()
+        screen.blit(btn_nuevo,(10,30))
+        screen.blit(btn_dibujar,(10,96+30))
+        screen.blit(btn_tachuela,(10,192+30))
+        screen.blit(btn_mover,(10,288+30))
+        screen.blit(btn_salir,(10,384+30))
+        
         pygame.display.update()
         
         
