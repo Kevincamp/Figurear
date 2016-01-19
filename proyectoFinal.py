@@ -35,23 +35,71 @@ def main():
     screen.fill([255,255,255])
     pygame.display.set_caption("FIGUREAR")
     
-    altoBoton = SCREEN_HEIGHT/5
-    #(posicion-x,posicion-y,tamano-ancho,tamano-alto)
-    pygame.draw.rect(screen, [0,255,0] ,(SCREEN_WIDTH*0, SCREEN_HEIGHT, 60, altoBoton)) # boton Nuevo
-    #pygame.draw.rect(screen, [255,255,0] ,(SCREEN_WIDTH*0,SCREEN_HEIGHT +altoBoton, 60,altoBoton))# boton Dibujar
-    #pygame.draw.rect(screen, [0,255,245] ,(screen_width_Nuevo,screen_height_Nuevo+120,60,SCREEN_HEIGHT/5)) # boton Tachuela
-    #pygame.draw.rect(screen, [0,86,245] ,(screen_width_Nuevo,screen_height_Nuevo+180,60,SCREEN_HEIGHT/5))# boton mover
-    #pygame.draw.rect(screen, [100,100,245] ,(screen_width_Nuevo,screen_height_Nuevo+220,60,SCREEN_HEIGHT/5))# boton salir
-    #pygame.display.flip()
-    
-    pygame.display.update()
-    
-    
     botonCerrar = False
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
+        
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+        # Boton Nuevo
+        btn_nuevo = cargar_imagen("nuevo.png")
+        screen.blit(pacman_intro,(900/3,20))
+        if (0< mouse[0] <60) and (0< mouse[1] <96):
+            # Boton Nuevo over
+            pygame.draw.rect(screen, [79,255,5] ,(0, 0, 60, 96)) 
+            # Accion Boton Nuevo
+            if click[0] == 1:
+                print "Nuevo"
+        else:
+            # Boton Nuevo
+            pygame.draw.rect(screen, [0,255,0] ,(0, 0, 60, 96)) # boton Nuevo
+        
+        # Boton Dibujar
+        if (0<mouse[0]<60) and (96<mouse[1]<192):
+            # Boton Dibujar over
+            pygame.draw.rect(screen,[255,240,10], (0,96, 60,96))
+            # Accion clic de Dibujar
+            if click[0] == 1:
+                print "Dibujar"
+        else:
+            # Boton Dibujar
+            pygame.draw.rect(screen, [255,255,0] ,(0,96, 60,96))# boton Dibujar
+        
+        # Boton Tachuela
+        if (0<mouse[0]<60) and (192<mouse[1]<288):
+            # Boton Tachuela over
+            pygame.draw.rect(screen, [0,230,245], (0,192,60,96))
+            # Accion clic de Tachuela
+            if click[0] == 1:
+                print "Tachuela"
+        else:
+            # Boton Tachuela
+            pygame.draw.rect(screen, [0,255,245] ,(0,192,60,96)) # boton Tachuela
+        
+        # Boton Mover
+        if (0< mouse[0]< 60) and (288<mouse[1]<384):
+            # Boton Mover over
+            pygame.draw.rect(screen, [150,86,245] ,(0,288,60,96))
+            # Accion Boton Mover
+            if click[0] == 1:
+                print "Mover"
+        else:
+            # Boton Mover
+            pygame.draw.rect(screen, [0,86,245] ,(0,288,60,96))# boton mover
+            
+        # Boton Salir
+        if ( 0< mouse[0]< 60) and (384 < mouse[1] < SCREEN_HEIGHT):
+            # Boton Salir over
+            pygame.draw.rect(screen, [255,100,100] ,(0,384,60,96))
+            # Accion Boton Salir
+            if click[0] == 1:
+                print "Salir"
+        else:
+            pygame.draw.rect(screen, [255,0,0] ,(0,384,60,96))# boton salir
+        pygame.display.update()
+        
         
         
 if __name__ == "__main__":
