@@ -1,5 +1,6 @@
 import pygame, random
 from p2t import *
+from math import sin, cos, atan2, sqrt, pi
 
 #import numpy as np
 #import matplotlib
@@ -7,8 +8,6 @@ from p2t import *
 #import matplotlib.tri as mtri
 
 screen = pygame.display.set_mode((800,600))
-
-c = 0
 draw_on = False
 first_pos = [0, 0]
 lastp_pos = [0, 0]
@@ -21,8 +20,8 @@ def pos_to_point(position):
     x = position[0]
     y = position[1]
     return Point(x,y)
-    
-def roundline(srf, color, start, end, saveInList,radius=1):
+
+def roundline(srf, color, start, end, rec,radius=1):
     dx = int(end[0])- int(start[0])
     dy = int(end[1])-int(start[1])
     distance = max(abs(dx), abs(dy))
@@ -30,14 +29,8 @@ def roundline(srf, color, start, end, saveInList,radius=1):
         x = int( start[0]+float(i)/distance*dx)
         y = int( start[1]+float(i)/distance*dy)
         pygame.draw.circle(srf, color, [x, y], radius)
-        if(saveInList):
-            pointsFigure.append(Point(float(x),float(y)))
-
-def loadpoint(pointsFigure):
-    points=[]
-    for point in pointsFigure:
-        points.append(Point(float(point[0]), float(point[1])))
-    return points
+        if rec:
+            pointsFigure.append(pos_to_point((x,y)))
 
 def triangulacion(polyline):
     import sys
@@ -92,24 +85,23 @@ try:
         if e.type == pygame.MOUSEBUTTONDOWN:
             screen.fill((0,0,0))
             first_pos = e.pos
-            if c==0:
-                pointsFigure.append(pos_to_point(first_pos))
+            pointsFigure = []
+            pointsFigure.append(pos_to_point(first_pos))
             color = (random.randrange(256), random.randrange(256), random.randrange(256))
             pygame.draw.circle(screen, color, e.pos, radius)
             draw_on = True
         if e.type == pygame.MOUSEBUTTONUP:
             draw_on = False
             lastp_pos = e.pos
+            pointsFigure.append(pos_to_point(lastp_pos))
             roundline(screen,color,first_pos,lastp_pos, True,radius)
             lastp_pos = (0, 0)
             print_points(pointsFigure)
             #triangulacion(pointsFigure)
         if e.type == pygame.MOUSEMOTION:
             if draw_on:
-                c+=1
                 pygame.draw.circle(screen, color, e.pos, radius)
                 roundline(screen, color, e.pos, last_pos, True, radius)
-                #pointsFigure.append(pos_to_point(e.pos))
             last_pos = e.pos
         
         pygame.display.flip()

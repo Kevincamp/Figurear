@@ -29,7 +29,7 @@ def pos_to_point(position):
     y = position[1]
     return Point(x,y)
     
-def roundline(srf, color, start, end, saveInList,radius=1):
+def roundline(srf, color, start, end,radius=1):
     dx = int(end[0])- int(start[0])
     dy = int(end[1])-int(start[1])
     distance = max(abs(dx), abs(dy))
@@ -37,8 +37,7 @@ def roundline(srf, color, start, end, saveInList,radius=1):
         x = int( start[0]+float(i)/distance*dx)
         y = int( start[1]+float(i)/distance*dy)
         pygame.draw.circle(srf, color, [x, y], radius)
-        if(saveInList):
-            pointsFigure.append(Point(float(x),float(y)))
+        pointsFigure.append(float(x),float(y))
 
 def resample(points, n):
     I = pathlength(points) / float(n-1)
@@ -118,27 +117,28 @@ try:
         if e.type == pygame.QUIT:
             raise StopIteration
         if e.type == pygame.MOUSEBUTTONDOWN:
+            pointsFigure = []
             screen.fill((0,0,0))
             first_pos = e.pos
-            if c==0:
-                pointsFigure.append(pos_to_point(first_pos))
+            pointsFigure.append(first_pos)
             color = (random.randrange(256), random.randrange(256), random.randrange(256))
             pygame.draw.circle(screen, color, e.pos, radius)
             draw_on = True
         if e.type == pygame.MOUSEBUTTONUP:
 			draw_on = False
 			lastp_pos = e.pos
-			roundline(screen,color,first_pos,lastp_pos, True,radius)
-			lastp_pos = (0, 0)
+            pointsFigure.append(lastp_pos)
+            roundline(screen,color,first_pos,lastp_pos,radius)
 			pointsFigure = resample(pointsFigure,250)
-			print_points(pointsFigure)
-			triangulacion(pointsFigure)
+			#print_points(pointsFigure)
+            lastp_pos = (0, 0)
+			#triangulacion(pointsFigure)
         if e.type == pygame.MOUSEMOTION:
             if draw_on:
                 c+=1
                 pygame.draw.circle(screen, color, e.pos, radius)
-                roundline(screen, color, e.pos, last_pos, False, radius)
-                pointsFigure.append(pos_to_point(e.pos))
+                roundline(screen, color, e.pos, last_pos, radius)
+                #pointsFigure.append(e.pos)
             last_pos = e.pos
         
         pygame.display.flip()
