@@ -1,5 +1,8 @@
 import pygame, random
 from p2t import *
+from pygame import Color
+from pygame.gfxdraw import trigon, line
+from sets import Set 
 from math import sin, cos, atan2, sqrt, pi
 
 #import numpy as np
@@ -24,10 +27,6 @@ def pathlength(points):
         d += distance(p_i, points[i+1])
     return d
 
-def pos_to_point(position):
-    x = position[0]
-    y = position[1]
-    return Point(x,y)
     
 def roundline(srf, color, start, end,radius=1):
     dx = int(end[0])- int(start[0])
@@ -37,7 +36,7 @@ def roundline(srf, color, start, end,radius=1):
         x = int( start[0]+float(i)/distance*dx)
         y = int( start[1]+float(i)/distance*dy)
         pygame.draw.circle(srf, color, [x, y], radius)
-        pointsFigure.append(float(x),float(y))
+        pointsFigure.append([float(x),float(y)])
 
 def resample(points, n):
     I = pathlength(points) / float(n-1)
@@ -109,15 +108,27 @@ def print_points(points):
         #x = point[0]
         #y = point[1]
         print ("\np. x = " + str(point.x) + " , y = " + str(point.y))
+
+
+def pos_to_point(position):
+    x = position[0]
+    y = position[1]
+    return Point(x,y)
         
 
 try:
-    while True:
+    black = Color(0,0,0)
+    red = Color(255, 0, 0)
+    green = Color(0, 255, 0)    
+    valida=0
+    pointsFigure = []
+    finalPoints = []
+    while valida==0:
         e = pygame.event.wait()
         if e.type == pygame.QUIT:
             raise StopIteration
         if e.type == pygame.MOUSEBUTTONDOWN:
-            pointsFigure = []
+            
             screen.fill((0,0,0))
             first_pos = e.pos
             pointsFigure.append(first_pos)
@@ -125,23 +136,30 @@ try:
             pygame.draw.circle(screen, color, e.pos, radius)
             draw_on = True
         if e.type == pygame.MOUSEBUTTONUP:
-			draw_on = False
-			lastp_pos = e.pos
-			pointsFigure.append(lastp_pos)
-			roundline(screen,color,first_pos,lastp_pos,radius)
-			pointsFigure = resample(pointsFigure,250)
-			#print_points(pointsFigure)
-			lastp_pos = (0, 0)
-			#triangulacion(pointsFigure)
+                draw_on = False
+                lastp_pos = e.pos
+                pointsFigure.append(lastp_pos)
+                roundline(screen,color,first_pos,lastp_pos,radius)
+                pointsFigure = resample(pointsFigure,90)
+                #print_points(pointsFigure)
+                lastp_pos = (0, 0)
+                valida=1
         if e.type == pygame.MOUSEMOTION:
-            if draw_on:
-                c+=1
-                pygame.draw.circle(screen, color, e.pos, radius)
-                roundline(screen, color, e.pos, last_pos, radius)
-                #pointsFigure.append(e.pos)
-            last_pos = e.pos
-        
+                if draw_on:
+                    c+=1
+                    pygame.draw.circle(screen, color, e.pos, radius)
+                    roundline(screen, color, e.pos, last_pos, radius)
+                    #pointsFigure.append(e.pos)
+                last_pos = e.pos
         pygame.display.flip()
+    archivo = open('prueba.dat','w')
+    for posi in pointsFigure:
+        poi=pos_to_point(posi)
+        finalPoints.append(poi)
+        archivo.write(str(format(poi.x,'.5f')) + ' ' + str(format(poi.y,'.5f')) + '\n')
+    archivo.close()
+    triangulacion(finalPoints)
+        
 except StopIteration:
     pass
 
