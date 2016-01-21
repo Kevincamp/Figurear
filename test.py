@@ -88,7 +88,7 @@ def main(file_name, translate, zoom):
     ##
     triangles = cdt.triangulate()
     
-    print "Elapsed time (ms) = " + str(clock()*1000.0)
+    #print "Elapsed time (ms) = " + str(clock()*1000.0)
         
     # The Main Event Loop
     done = False
