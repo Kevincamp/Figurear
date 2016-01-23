@@ -140,7 +140,7 @@ try:
                 lastp_pos = e.pos
                 pointsFigure.append(lastp_pos)
                 roundline(screen,color,first_pos,lastp_pos,radius)
-                pointsFigure = resample(pointsFigure,90)
+                pointsFigure = resample(pointsFigure,40)
                 #print_points(pointsFigure)
                 lastp_pos = (0, 0)
                 valida=1
