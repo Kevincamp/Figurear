@@ -70,8 +70,9 @@ def btnDibujar(screen):
         if e.type == pygame.MOUSEBUTTONDOWN:
             #first_pos = e.pos
             color = (random.randrange(256), random.randrange(256), random.randrange(256))
-            pygame.draw.circle(screen, color, e.pos, radius)
-            draw_on = True
+            if e.pos[0]>70:
+                pygame.draw.circle(screen, color, e.pos, radius)
+                draw_on = True
         if e.type == pygame.MOUSEBUTTONUP:
                 draw_on = False
                 #lastp_pos = e.pos
@@ -80,8 +81,9 @@ def btnDibujar(screen):
                 #ESTADO = "D"
         if e.type == pygame.MOUSEMOTION:
                 if draw_on:
-                    pygame.draw.circle(screen, color, e.pos, radius)
-                    roundline(screen, color, e.pos, last_pos, radius)
+                    if e.pos[0]>70:
+					   pygame.draw.circle(screen, color, e.pos, radius)
+					   roundline(screen, color, e.pos, last_pos, radius)
                 last_pos = e.pos
         pygame.display.flip()
  
