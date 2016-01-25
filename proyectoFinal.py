@@ -1,8 +1,12 @@
 import pygame, random
+from p2t import *
 import abc
 import sys
 import PIL
 from PIL import Image
+from pygame.gfxdraw import trigon, line
+from sets import Set 
+from math import sin, cos, atan2, sqrt, pi
 # -----------
 # Constantes
 # -----------
@@ -14,6 +18,7 @@ BLANCO = (255, 255, 255)
 PLOMO = (121,128,129)
 NEGRO = (0,0,0)
 ESTADO = "N"
+SHAPE = []
 
 
 
@@ -23,7 +28,18 @@ ESTADO = "N"
 # Clases y Funciones utilizadas
 # ------------------------------
 
+def pathlength(points):
+    d = 0
+    for i,p_i in enumerate(points[:len(points)-1]):
+        d += distance(p_i, points[i+1])
+    return d
+def distance(p1, p2): 
+    return float(sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2))
 
+def pos_to_point(position):
+    x = position[0]
+    y = position[1]
+    return Point(x,y)
 
 
 def text_objects(text, font):
@@ -42,6 +58,7 @@ def cargar_imagen ( fichero_imagen ):
     
     
 def roundline(srf, color, start, end,radius=1):
+    global SHAPE
     dx = int(end[0])- int(start[0])
     dy = int(end[1])-int(start[1])
     distance = max(abs(dx), abs(dy))
@@ -49,8 +66,26 @@ def roundline(srf, color, start, end,radius=1):
         x = int( start[0]+float(i)/distance*dx)
         y = int( start[1]+float(i)/distance*dy)
         pygame.draw.circle(srf, color, [x, y], radius)
-        #pointsFigure.append([float(x),float(y)])
+        SHAPE.append([float(x),float(y)])
         
+def resample(points, n):
+    I = pathlength(points) / float(n-1)
+    D = 0
+    newPoints = [points[0]]
+    i = 1
+    while i<len(points):
+        p_i = points[i]
+        d = distance(points[i-1], p_i)
+        if (D + d) >= I:
+            qx = points[i-1][0] + ((I-D) / d) * (p_i[0] - points[i-1][0])
+            qy = points[i-1][1] + ((I-D) / d) * (p_i[1] - points[i-1][1])
+            newPoints.append([qx,qy])
+            points.insert(i, [qx,qy])
+            D = 0
+        else: D = D + d
+        i+=1
+    return newPoints
+    
  
 def nuevoDibujo(screen):
     screen_for_play = screen
@@ -58,40 +93,48 @@ def nuevoDibujo(screen):
      
 def btnDibujar(screen):
     global ESTADO
+    global SHAPE
+    SHAPE = []
     draw_on = False
     color = (255, 128, 0)
-    #first_pos = [SCREEN_WIDTH_4PLAY/2, SCREEN_HEIGHT/2]
-    #lastp_pos = [0, 0]
+    first_pos = None
+    lastp_pos = None
     last_pos = (0, 0)
     radius = 3
     valida=0
     while ESTADO == "N":
         e = pygame.event.wait()
-        if e.type == pygame.MOUSEBUTTONDOWN:
-            #first_pos = e.pos
-            color = (random.randrange(256), random.randrange(256), random.randrange(256))
-            if e.pos[0]>70:
+        if e.pos[0]>70:
+            if e.type == pygame.MOUSEBUTTONDOWN:
+                color = (random.randrange(256), random.randrange(256), random.randrange(256))
                 pygame.draw.circle(screen, color, e.pos, radius)
+                first_pos = e.pos
+                SHAPE.append(first_pos)
                 draw_on = True
-        if e.type == pygame.MOUSEBUTTONUP:
-                draw_on = False
-                #lastp_pos = e.pos
-                #roundline(screen, color,first_pos,lastp_pos,radius)
-                #lastp_pos = (0, 0)
-                #ESTADO = "D"
-        if e.type == pygame.MOUSEMOTION:
-                if draw_on:
-                    if e.pos[0]>70:
-					   pygame.draw.circle(screen, color, e.pos, radius)
-					   roundline(screen, color, e.pos, last_pos, radius)
-                last_pos = e.pos
-        pygame.display.flip()
- 
-
+            if e.type == pygame.MOUSEBUTTONUP:
+                    draw_on = False
+                    lastp_pos = e.pos
+                    SHAPE.append(lastp_pos)
+                    roundline(screen, color,first_pos,lastp_pos,radius)
+                    SHAPE = resample(SHAPE,40)
+                    ESTADO = "N1"
+            if e.type == pygame.MOUSEMOTION:
+                    if draw_on:
+                        pygame.draw.circle(screen, color, e.pos, radius)
+                        roundline(screen, color, e.pos, last_pos, radius)
+                    last_pos = e.pos
+            pygame.display.flip()
     
 
 
 
+
+
+def triangularizar():
+    global ESTADO
+    
+    print "Se triangulariza el SHAPE"
+    ESTADO = "D"
 
 # ------------------------------
 # Funcion principal del juego
@@ -103,6 +146,8 @@ def btnDibujar(screen):
 
 def main():
     global ESTADO
+    global SHAPE
+    
     ESTADO = "none"
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -142,9 +187,10 @@ def main():
         if ESTADO == "N":
             if (0<mouse[0]<60) and (96<mouse[1]<192):
                 if click[0] == 1:
-                    pygame.draw.rect(screen, [0,255,245] ,(0,192,60,96)) # Activo Boton Tachuela
                     btnDibujar(screen)
-                    #ESTADO = "D"
+                    triangularizar()
+                    if (ESTADO == "N1"):
+                        pygame.draw.rect(screen, [0,255,245] ,(0,192,60,96)) # Activo Boton Tachuela
             else:
                 pygame.draw.rect(screen, [255,255,0] ,(0,96, 60,96))
         else:
