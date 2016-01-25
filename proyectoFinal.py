@@ -16,6 +16,7 @@ SCREEN_HEIGHT = 480
 SCREEN_WIDTH_4PLAY = 544
 BLANCO = (255, 255, 255)
 PLOMO = (121,128,129)
+AZUL = (0,0,255)
 NEGRO = (0,0,0)
 ESTADO = "N"
 SHAPE = []
@@ -27,6 +28,8 @@ SHAPE = []
 # ------------------------------
 # Clases y Funciones utilizadas
 # ------------------------------
+
+
 
 def pathlength(points):
     d = 0
@@ -108,9 +111,10 @@ def btnDibujar(screen):
             if e.type == pygame.MOUSEBUTTONDOWN:
                 color = (random.randrange(256), random.randrange(256), random.randrange(256))
                 pygame.draw.circle(screen, color, e.pos, radius)
-                first_pos = e.pos
-                SHAPE.append(first_pos)
-                draw_on = True
+                if e.pos[0]>70:
+                  first_pos = e.pos
+                  SHAPE.append(first_pos)
+                  draw_on = True
             if e.type == pygame.MOUSEBUTTONUP:
                     draw_on = False
                     lastp_pos = e.pos
@@ -120,8 +124,9 @@ def btnDibujar(screen):
                     ESTADO = "N1"
             if e.type == pygame.MOUSEMOTION:
                     if draw_on:
-                        pygame.draw.circle(screen, color, e.pos, radius)
-                        roundline(screen, color, e.pos, last_pos, radius)
+                        if e.pos[0]>70:
+                            pygame.draw.circle(screen, color, e.pos, radius)
+                            roundline(screen, color, e.pos, last_pos, radius)
                     last_pos = e.pos
             pygame.display.flip()
     
@@ -136,11 +141,35 @@ def triangularizar():
     print "Se triangulariza el SHAPE"
     ESTADO = "D"
 
+
+def colocandoTachuela(screen):
+    global ESTADO
+    draw_on = False
+    radiusCircle = 10
+    tachuela1 = (0,0)
+    tachuela2 = (0,0)
+    seleccion = 0
+    
+    while ESTADO == "D":
+        e = pygame.event.wait()
+        if e.pos[0]>70:
+            if e.type == pygame.MOUSEBUTTONDOWN:
+                pygame.draw.circle(screen, AZUL, e.pos, radiusCircle,5)
+                if e.pos[0]>70:
+                  first_pos = e.pos
+                  SHAPE.append(first_pos)
+                  draw_on = False
+            if e.type == pygame.MOUSEBUTTONUP:
+                print "Alza Boton"
+                ESTADO = "T"
+            if e.type == pygame.MOUSEMOTION:
+                print "Mouse Motion"
+            pygame.display.flip()
+            #ESTADO = "T"
+                
 # ------------------------------
 # Funcion principal del juego
 # ------------------------------
-
-
 
 
 
@@ -203,7 +232,7 @@ def main():
                 if click[0] == 1:
                     pygame.draw.rect(screen,PLOMO, (0,96, 60,96)) # Desactivo Boton Dibujar
                     pygame.draw.rect(screen, [255,164,032],(0,288,60,96)) # Activo Boton Mover
-                    ESTADO = "T"
+                    colocandoTachuela(screen)
             else:
                 pygame.draw.rect(screen, [0,255,245] ,(0,192,60,96))
         else:
