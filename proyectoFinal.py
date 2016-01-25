@@ -22,6 +22,20 @@ ESTADO = "N"
 SHAPE = []
 
 
+# ------------------------------
+# Sprites utilizadas
+# ------------------------------
+
+class Tachuela(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((50, 50))
+        self.image.fill((255, 255, 255))
+        pygame.draw.circle(self.image, AZUL, (25, 25), 3, 2)
+        self.rect = self.image.get_rect()
+        
+    def update(self):
+        self.rect.center = pygame.mouse.get_pos()
 
 
 
@@ -150,22 +164,43 @@ def colocandoTachuela(screen):
     tachuela2 = (0,0)
     seleccion = 0
     
-    while ESTADO == "D":
-        e = pygame.event.wait()
-        if e.pos[0]>70:
-            if e.type == pygame.MOUSEBUTTONDOWN:
-                pygame.draw.circle(screen, AZUL, e.pos, radiusCircle,5)
-                if e.pos[0]>70:
-                  first_pos = e.pos
-                  SHAPE.append(first_pos)
-                  draw_on = False
-            if e.type == pygame.MOUSEBUTTONUP:
-                print "Alza Boton"
-                ESTADO = "T"
-            if e.type == pygame.MOUSEMOTION:
-                print "Mouse Motion"
-            pygame.display.flip()
-            #ESTADO = "T"
+    #while ESTADO == "D":
+    background = pygame.Surface(screen.get_size())
+    background.fill((255, 255, 255))
+    screen.blit(background, (0, 0))
+    
+    circle = Tachuela()
+    
+    #hide mouse
+    pygame.mouse.set_visible(False)
+    clock = pygame.time.Clock()
+    keepGoing = True
+    while keepGoing:
+        clock.tick(30)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                keepGoing = False
+                
+        #screen.blit
+        #allSprites.update()
+        allSprites.draw(screen)
+        
+        pygame.display.flip()
+        #e = pygame.event.wait()
+        #if e.pos[0]>70:
+        #    if e.type == pygame.MOUSEBUTTONDOWN:
+        #        pygame.draw.circle(screen, AZUL, e.pos, radiusCircle,5)
+        #        if e.pos[0]>70:
+        #          first_pos = e.pos
+        #          SHAPE.append(first_pos)
+        #          draw_on = False
+        #    if e.type == pygame.MOUSEBUTTONUP:
+        #        print "Alza Boton"
+        #        ESTADO = "T"
+        #    if e.type == pygame.MOUSEMOTION:
+        #        print "Mouse Motion"
+        #    pygame.display.flip()
+        #    #ESTADO = "T"
                 
 # ------------------------------
 # Funcion principal del juego
