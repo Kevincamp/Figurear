@@ -3,6 +3,9 @@ from p2t import *
 import abc
 import sys
 import PIL
+import sys
+from pygame import Color
+from time import clock
 from PIL import Image
 from pygame.gfxdraw import trigon, line
 from sets import Set 
@@ -20,6 +23,9 @@ AZUL = (0,0,255)
 NEGRO = (0,0,0)
 ESTADO = "N"
 SHAPE = []
+black = Color(0,0,0)
+red = Color(255, 0, 0)
+green = Color(0, 255, 0)  
 
 
 # ------------------------------
@@ -111,6 +117,7 @@ def nuevoDibujo(screen):
 def btnDibujar(screen):
     global ESTADO
     global SHAPE
+    finalPoints = []
     SHAPE = []
     draw_on = False
     color = (255, 128, 0)
@@ -143,15 +150,52 @@ def btnDibujar(screen):
                             roundline(screen, color, e.pos, last_pos, radius)
                     last_pos = e.pos
             pygame.display.flip()
+    for posi in SHAPE:
+        poi=pos_to_point(posi)
+        finalPoints.append(poi)
+    triangulacion(screen,finalPoints)
     
 
 
 
 
 
-def triangularizar():
+def triangulacion(screen, polyline):
     global ESTADO
+    # initialize clock
+    t0 = clock()
+    ##
+    ## Step 1: Initialize
+    ## NOTE: polyline must be a simple polygon. The polyline's points
+    ## constitute constrained edges. No repeat points!!!
+    ##
+    print("Init CDT")
+    cdt = CDT(polyline)
+    ##
+    ## Step 2: Triangulate
+    ##
+    print("Triangulate")
+    try:
+        triangles = cdt.triangulate()
+    except e:
+        print("Except")
     
+    print "Elapsed time (ms) = " + str(clock()*1000.0)
+    # The Main Event Loop
+    done = False
+    while not done:
+        # Draw triangles
+        for t in triangles:
+            x1 = int(t.a.x)
+            y1 = int(t.a.y)
+            x2 = int(t.b.x)
+            y2 = int(t.b.y)
+            x3 = int(t.c.x)
+            y3 = int(t.c.y)
+            trigon(screen, x1, y1, x2, y2, x3, y3, red)
+        #Update the scree
+        pygame.display.update()
+        done = True
     print "Se triangulariza el SHAPE"
     ESTADO = "D"
 
@@ -218,8 +262,9 @@ def main():
     screen.fill(PLOMO)
     pygame.display.set_caption("FIGUREAR")
     botonCerrar = False
-    
+      
     while True:
+        print ESTADO 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
@@ -251,9 +296,8 @@ def main():
         if ESTADO == "N":
             if (0<mouse[0]<60) and (96<mouse[1]<192):
                 if click[0] == 1:
-                    btnDibujar(screen)
-                    triangularizar()
-                    if (ESTADO == "N1"):
+                    btnDibujar(screen)                    
+                    if (ESTADO == "D"):
                         pygame.draw.rect(screen, [0,255,245] ,(0,192,60,96)) # Activo Boton Tachuela
             else:
                 pygame.draw.rect(screen, [255,255,0] ,(0,96, 60,96))
