@@ -2,7 +2,8 @@
  
 import pygame
 import random
-from math import sin, cos, atan2, sqrt, pi
+from math import *
+import sys
  
 # Definimos algunos colores
 NEGRO = (0, 0, 0)
@@ -15,7 +16,7 @@ PLOMO = (121,128,129)
 AZUL = (0,0,255)
 ESTADO = "N"
 bloque_lista =[]
-puntos_remuestreados =[]
+puntos_malla =[]
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
  
@@ -104,6 +105,209 @@ def nuevoDibujo(screen):
     screen.fill([255,255,255])
 
 
+
+
+#-------------------------------------------------------------
+def menorDistancia(pos):
+    global bloque_lista
+    mDistancia =100000000000
+    i=0
+    while i<len(bloque_lista):
+        posGrafico= [bloque_lista[i].rect.x , bloque_lista[i].rect.y]
+        d = distance(pos,posGrafico)
+        if d < mDistancia :
+            mDistancia=d
+        i=i+1
+    return mDistancia
+
+
+def isBetween(a, b, c):
+    crossproduct = (c[1] - a[1]) * (b[0] - a[0]) - (c[0] - a[0]) * (b[1] - a[1])
+    if abs(crossproduct) != 0 : return False   # (or != 0 if using integers)
+
+    dotproduct = (c[0] - a[0]) * (b[0] - a[0]) + (c[1] - a[1])*(b[1] - a[1])
+    if dotproduct < 0 : return False
+
+    squaredlengthba = (b[0] - a[0])*(b[0] - a[0]) + (b[1] - a[1])*(b[1] - a[1])
+    if dotproduct > squaredlengthba: return False
+
+    return True
+
+
+def rectaEntrePuntos(a,b,c):
+    x=(c[0] - a[0])*(b[1]-a[1])
+    y=(c[1]-a[1])*(b[0]-a[0])
+    d=distance(a,c)
+    if x==y and d<=16:
+        return True
+    return False
+    #--------------------------------------------------------
+
+def puntoEntreVertices(a,b):
+    global bloque_lista
+    i=0
+    x=0
+    y=0
+    while i<len(bloque_lista):
+        posx=bloque_lista[i].rect.x
+        posy=bloque_lista[i].rect.y
+        p=[posx,posy]
+        if isBetween(a,b,p) :   #isBetween(a,b,c)  o    rectaEntrePuntos(a,b,p)
+            return [1,p]
+        i=i+1
+    return [0,[0,0]]
+    
+    
+
+
+
+
+def seisVertices(posx,posy,color):
+    global screen
+    global puntos_malla
+    # Realizar los demas triangulos a partir de los 6 vertices cn un tamanio de 20
+    B1 = Bloque(color, 3,3)
+    # Extraemos la x e y de la lista, 
+    B1.rect.x = posx
+    B1.rect.y = posy
+    # Aniadimos el  bloque a la lista de objetos
+    screen.blit(B1.image,( B1.rect.x,B1.rect.y))
+    poss=[posx,posy]
+    p=[poss,1] # punto central
+    if not p in puntos_malla:
+        print "entra al  if de validacion "
+        
+        puntos_malla.append(p)
+    else: 
+        print "setea a 1 al visitado"
+        index=puntos_malla.index(p)
+        puntos_malla[index][1]=1
+
+    verticeDer =[posx+16,posy] #vertice derecho
+    verticeDerInferior =[posx+8,int(posy+sqrt((16)**2 - (8)**2))] #vertice derecho inferior
+    verticeDerSuperior =[posx+8,int(posy-sqrt((16)**2 - (8)**2))] #vertice derecho superior
+    verticeIzqInferior =[posx-8,int(posy+sqrt((16)**2 - (8)**2))] #vertice izq inferior
+    verticeIzqSuperior =[posx-8,int(posy-sqrt((16)**2 - (8)**2))] #vertice izq superior
+    verticeIzq =[posx-16,posy] #vertice izquierdo
+    t1=puntoEntreVertices(p[0],verticeDer)
+    if t1[0]== 0:
+        if not verticeDer in puntos_malla:
+            f=[verticeDer,0]
+            puntos_malla.append(f)
+        BverticeDer = Bloque(color, 3,3)
+        BverticeDer.rect.x = verticeDer[0]
+        BverticeDer.rect.y = verticeDer[1]
+        screen.blit(BverticeDer.image,( BverticeDer.rect.x,BverticeDer.rect.y))
+    else:
+        print "Encontro limite"
+        if not t1[1] in puntos_malla:
+            f=[t1[1],1]
+            puntos_malla.append(f)
+
+    t2=puntoEntreVertices(p[0],verticeDerInferior)
+    if t2[0]== 0:
+        if not verticeDerInferior in puntos_malla:
+            f=[verticeDerInferior,0]
+            puntos_malla.append(f)
+        BverticeDerInferior = Bloque(color, 3,3)
+        BverticeDerInferior.rect.x = verticeDerInferior[0]
+        BverticeDerInferior.rect.y = verticeDerInferior[1]
+        screen.blit(BverticeDerInferior.image,( BverticeDerInferior.rect.x,BverticeDerInferior.rect.y))
+    else:
+        print "Encontro limite"
+        if not t2[1] in puntos_malla:
+            f=[t2[1],1]
+            puntos_malla.append(f)
+
+    t3=puntoEntreVertices(p[0],verticeDerSuperior)
+    if t3[0]== 0:
+        if not verticeDerSuperior in puntos_malla:
+            f=[verticeDerSuperior,0]
+            puntos_malla.append(f)
+        BverticeDerSuperior = Bloque(color, 3,3)
+        BverticeDerSuperior.rect.x = verticeDerSuperior[0]
+        BverticeDerSuperior.rect.y = verticeDerSuperior[1]
+        screen.blit(BverticeDerSuperior.image,( BverticeDerSuperior.rect.x,BverticeDerSuperior.rect.y))
+    else:
+        print "Encontro limite"
+        if not t3[1] in puntos_malla:
+            f=[t3[1],1]
+            puntos_malla.append(f)
+
+    t4=puntoEntreVertices(p[0],verticeIzqInferior)
+    if t4[0]== 0:
+        if not verticeIzqInferior in puntos_malla:
+            f=[verticeIzqInferior,0]
+            puntos_malla.append(f)
+        BverticeIzqInferior = Bloque(color, 3,3)
+        BverticeIzqInferior.rect.x = verticeIzqInferior[0]
+        BverticeIzqInferior.rect.y = verticeIzqInferior[1]
+        screen.blit(BverticeIzqInferior.image,( BverticeIzqInferior.rect.x,BverticeIzqInferior.rect.y))
+    else:
+        print "Encontro limite"
+        if not t4[1] in puntos_malla:
+            f=[t4[1],1]
+            puntos_malla.append(f)
+
+    t5=puntoEntreVertices(p[0],verticeIzqSuperior)
+    if t5[0]== 0:
+        if not verticeIzqSuperior in puntos_malla:
+            f=[verticeIzqSuperior,0]
+            puntos_malla.append(f)
+        BverticeIzqSuperior = Bloque(color, 3,3)
+        BverticeIzqSuperior.rect.x = verticeIzqSuperior[0]
+        BverticeIzqSuperior.rect.y = verticeIzqSuperior[1]
+        screen.blit(BverticeIzqSuperior.image,( BverticeIzqSuperior.rect.x,BverticeIzqSuperior.rect.y))
+    else:
+        print "Encontro limite"
+        if not t5[1] in puntos_malla:
+            f=[t5[1],1]
+            puntos_malla.append(f)
+
+    t6=puntoEntreVertices(p[0],verticeIzq)
+    if t6[0]== 0:
+        if not verticeIzq in puntos_malla:
+            f=[verticeIzq,0]
+            puntos_malla.append(f)
+        BverticeIzq = Bloque(color, 3,3)
+        BverticeIzq.rect.x = verticeIzq[0]
+        BverticeIzq.rect.y = verticeIzq[1]
+        screen.blit(BverticeIzq.image,( BverticeIzq.rect.x,BverticeIzq.rect.y))
+    else:
+        print "Encontro limite"
+        if not t6[1] in puntos_malla:
+            f=[t6[1],1]
+            puntos_malla.append(f)
+
+    #s=[BverticeIzqSuperior.rect.x,BverticeIzqSuperior.rect.y]
+    #print menorDistancia(s)
+    pygame.display.flip()
+
+
+def encontrar_centroide(color):
+    global bloque_lista
+    global screen
+    global puntos_malla
+    i=0
+    x=0
+    y=0
+    while i<len(bloque_lista):
+        x = x +bloque_lista[i].rect.x
+        y = y + bloque_lista[i].rect.y
+        i=i+1
+    posx = x/len(bloque_lista)
+    posy = y/len(bloque_lista)
+    
+    seisVertices(posx,posy,color)
+    j=0
+    while j < len(puntos_malla):
+        p_i=puntos_malla[j]
+        p=p_i[0]
+        if p_i[1]==0:
+            seisVertices(p[0],p[1],color)
+        j=j+1
+
+
 def btnDibujar():
     global ESTADO
     global bloque_lista
@@ -158,25 +362,8 @@ def btnDibujar():
                 lastp_pos = e.pos
                 roundline(screen, color,first_pos,lastp_pos,radius)
                 #resample(bloque_lista,40,color)
-                print bloque_lista[len(bloque_lista)-1].rect.x, bloque_lista[len(bloque_lista)-1].rect.y
-                print len(bloque_lista)
-                i=0
-                x=0
-                y=0
-                while i<len(bloque_lista):
-                    print bloque_lista[i].rect.x , bloque_lista[i].rect.y
-                    x = x +bloque_lista[i].rect.x
-                    y = y + bloque_lista[i].rect.y
-                    i=i+1
-                posx = x/len(bloque_lista)
-                posy = y/len(bloque_lista)
-                B = Bloque(color, 3,3)
-                # Extraemos la x e y de la lista, 
-                B.rect.x = posx
-                B.rect.y = posy
-                # Aniadimos el  bloque a la lista de objetos
-                screen.blit(B.image,( B.rect.x,B.rect.y))
-                print x , y
+                pygame.display.flip()
+                encontrar_centroide(color)
                 ESTADO = "N1"
 
             if e.type == pygame.MOUSEMOTION :
