@@ -54,7 +54,7 @@ def roundline(srf, color, start, end,radius=1):
     for i in range(distance):
         x = int( start[0]+float(i)/distance*dx)
         y = int( start[1]+float(i)/distance*dy)
-        bloque = Bloque(color, 10,10)
+        bloque = Bloque(color, 5, 5)
         bloque.rect.x = x
         bloque.rect.y = y
         # Aniadimos el  bloque a la lista de objetos
@@ -90,7 +90,7 @@ def resample(points, n,color):
         if (D + d) >= I and d !=0:
             qx = p2[0] + ((I-D) / d) * (p1[0] - p2[0])
             qy = p2[1] + ((I-D) / d) * (p1[1] - p2[1])
-            bloque = Bloque(color, 10,10)
+            bloque = Bloque(color, 5, 5)
             bloque.rect.x = qx
             bloque.rect.y = qy
             # Aniadimos el  bloque a la lista de objetos
@@ -173,8 +173,10 @@ def seisVertices(posx,posy,color):
     NuevoPuntos = []
     for valor in Puntos:
         NuevoPuntos.append((posx+valor[0],posy+valor[1]))
+        pygame.draw.line(screen, color, [posx, posy], [posx+valor[0], posy+valor[1]], 2)
+    
     # Realizar los demas triangulos a partir de los 6 vertices cn un tamanio de 20
-    B1 = Bloque(color, 3,3)
+    B1 = Bloque(color, 5, 5)
     # Extraemos la x e y de la lista, 
     B1.rect.x = posx
     B1.rect.y = posy
@@ -188,7 +190,7 @@ def seisVertices(posx,posy,color):
                     NuevoPuntos.append((punto[0]+valor[0],punto[1]+valor[1]))
         #if PuntoEnPoligono(punto): 
             puntos_malla.append(punto)
-            BverticeDer = Bloque(color, 3,3)
+            BverticeDer = Bloque(color, 5, 5)
             BverticeDer.rect.x = punto[0]
             BverticeDer.rect.y = punto[1]
             screen.blit(BverticeDer.image,( BverticeDer.rect.x,BverticeDer.rect.y))
@@ -220,8 +222,14 @@ def encontrar_centroide(color):
         j=j+1
     print "listo kalisto"
 
-
+# Funcion Dibujar: Genera el workspace para dibujar
 def btnDibujar():
+    '''Cargas 
+        LISTA DE PUNTOS: Lista de posiciones del puntero
+        ESTADO: estado de workspace
+        Lista de Bloques: 
+        Screen: 
+        puntos_remuestreados: '''
     global lista_puntos
     global ESTADO
     global bloque_lista
@@ -245,26 +253,21 @@ def btnDibujar():
         e = pygame.event.wait()
         if e.pos[0]>70:
             if e.type == pygame.MOUSEBUTTONDOWN:
-                print "dio clic y lo mantiene"
                 draw_on = True
-                #pygame.draw.circle(screen, color, e.pos, radius)
-                bloque = Bloque(color, 10,10)
+                bloque = Bloque(color, 5, 5)
                 first_pos = e.pos
                 last_pos = e.pos
-               # Establecemos una ubicacion aleatoria para el bloque
                 pos = pygame.mouse.get_pos()
                 lista_puntos.append(e.pos)
-                # Extraemos la x e y de la lista, 
                 bloque.rect.x = pos[0]
                 bloque.rect.y = pos[1]
                 screen.blit(bloque.image,( bloque.rect.x,bloque.rect.y))
-                # Aniadimos el  bloque a la lista de objetos
                 bloque_lista.append(bloque)
-                print bloque_lista[0].rect.x, bloque_lista[0].rect.y
+            #print bloque_lista[0].rect.x, bloque_lista[0].rect.y
                     
             if e.type == pygame.MOUSEBUTTONUP:
                 print "solto el clic"
-                bloque = Bloque(color, 10,10)
+                bloque = Bloque(color, 5, 5)
                 # Establecemos una ubicacion aleatoria para el bloque
                 pos = pygame.mouse.get_pos()
                 # Extraemos la x e y de la lista, 
@@ -285,7 +288,7 @@ def btnDibujar():
             if e.type == pygame.MOUSEMOTION :
                 if draw_on:
                     print "dibujando"
-                    bloque = Bloque(color, 10,10)
+                    bloque = Bloque(color, 5, 5)
                         # Establecemos una ubicacion aleatoria para el bloque
                     if e.pos[0]>70:
                         pos = pygame.mouse.get_pos()
