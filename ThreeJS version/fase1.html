@@ -21,16 +21,45 @@
 			puntos = new Array();
 			init();
 			renderEscena();
-			renderEscena2();
 			pressed = false; // si el mouse se encuentra presionado
-		} 
+		}
+    
+        function init(){
+            /* Inicializo las 2 escenas */
+            render = new THREE.WebGLRenderer();
+            render.setClearColor(0xECF8FA, 1);
+            render.setSize(canvasWidth, canvasHeight);
+            document.getElementById("canvas").appendChild(render.domElement);
+            initScene();
+        }
+    
+        function initScene(){
+            var spotLight = new THREE.SpotLight( 0xFFFFFF );
+            spotLight.position.set( 0,0,400);
+            var luzAmbiente = new THREE.AmbientLight(0xffffff);
+            spotLight.castShadow = true;
+            escena = new THREE.Scene();
+            var axis = new THREE.AxisHelper(500);
+            escena.add(axis);
+            escena.add( spotLight );
+            camara = new THREE.PerspectiveCamera(45, canvasWidth / canvasHeight, 0.1, 1000);
+            camara.position.set(0, 0, 500);
+            camara.lookAt(escena.position);
+            escena.add(camara);
+        }
+    
+        function renderEscena(){
+            render.render(escena, camara);
+        }
+    </script>
 </head>
 <body onload="webGL_init()">
+    <h1>hola</h1>
 	<div id = "canvas" width=800 height=400
 	style="background-color:#ECF8FA; border:3px solid #000000;"
-	onmousedown = "mouseDownEvent(event.clientX, event.clientY)"
-	onmousemove = "mouseMoveEvent(event.clientX, event.clientY)"
-	onmouseup = "mouseUpEvent(event.clientX, event.clientY)"
+    onmousedown="mouseDownEvent(event.clientX, event.clientY)"
+    onmousemove="mouseMoveEvent(event.clientX, event.clientY)"
+    onmouseup="mouseUpEvent(event.clientX, event.clientY)"
 	oncontextmenu = "return false;">
 	</div>
 </body>
