@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<script src="js/three.js"></script>
+	<script type="text/javascript" src="js/ndollar.js"></script>
+	
+	<script type="text/javascript"> 
+		var escena,escena2;
+		var camara,camara2;
+		var render,render2;
+		var value = 0.01;
+		var canvasRect = {x: 19, y: 25, width: 800, height: 400};
+		var canvasWidth = 800;
+		var canvasHeight = 400;
+		var value2 = 10;
+		var lastTime;
+		
+		function webGL_init(){
+			document.onselectstart = function() { return false; }
+			document.onmousedown = function() { return false; }
+			puntos = new Array();
+			init();
+			renderEscena();
+			renderEscena2();
+			pressed = false; // si el mouse se encuentra presionado
+		} 
+</head>
+<body onload="webGL_init()">
+	<div id = "canvas" width=800 height=400
+	style="background-color:#ECF8FA; border:3px solid #000000;"
+	onmousedown = "mouseDownEvent(event.clientX, event.clientY)"
+	onmousemove = "mouseMoveEvent(event.clientX, event.clientY)"
+	onmouseup = "mouseUpEvent(event.clientX, event.clientY)"
+	oncontextmenu = "return false;">
+	</div>
+</body>
+</html>
+	
