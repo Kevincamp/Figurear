@@ -25,7 +25,6 @@
 		}
     
         function init(){
-            /* Inicializo las 2 escenas */
             render = new THREE.WebGLRenderer();
             render.setClearColor(0xECF8FA, 1);
             render.setSize(canvasWidth, canvasHeight);
@@ -39,8 +38,6 @@
             var luzAmbiente = new THREE.AmbientLight(0xffffff);
             spotLight.castShadow = true;
             escena = new THREE.Scene();
-            var axis = new THREE.AxisHelper(500);
-            escena.add(axis);
             escena.add( spotLight );
             camara = new THREE.PerspectiveCamera(45, canvasWidth / canvasHeight, 0.1, 1000);
             camara.position.set(0, 0, 500);
@@ -51,11 +48,89 @@
         function renderEscena(){
             render.render(escena, camara);
         }
+    
+        function clearCanvas(){
+            /* Remuevo los puntos remuestreados */
+            removeObject(polygonWebGLResample, escena);
+            /* Remuevo el plano de triangulos de la triangulacion basica*/
+            removeObject(basicPlaneWebGL,escena);
+            /* Remuevo el plano de triangulos finales*/
+            removeObject(finalTrianglesWebGl,escena);
+        }
+    
+        /* Remueve un objeto de la escena*/
+        function removeObject(object,scene){
+            if(object==null)
+            return
+            if (object instanceof Array){
+                for(var i = 0; i < object.length ; i++){
+                    var o = object[i];
+                    scene.remove(o);
+                }
+            }
+            else{
+                scene.remove(object);
+            }
+        }
+    
+        function getScrollY(){
+            var scrollY = 0;
+            if (typeof(document.body.parentElement) != 'undefined'){
+                scrollY = document.body.parentElement.scrollTop; }
+            else if (typeof(window.pageYOffset) != 'undefined'){
+                scrollY = window.pageYOffset; }
+            return scrollY;
+        }
+    
+        function drawStroke(from, to)
+        {
+            var p1 = [puntos[from].X, puntos[from].Y,0];
+            var p2 = [puntos[to].X, puntos[to].Y,0];
+            drawStrokeLine(p1,p2,stroke,escena);
+            renderEscena();
+        }
+    
+        function mouseDownEvent(x, y){
+            //clearCanvas();
+            pressed = true;
+            /* Coordenadas referentes al div en el cual se va a dibujar*/
+            x -= canvasRect.x;
+            y -= canvasRect.y - getScrollY();
+            /* coordenadas referentes a la camara*/
+            x = x - (canvasWidth/2);
+            y = (canvasHeight/2) - y;
+            puntos.length = 1;
+            puntos[0] = new Point(x, y);
+        }
+    
+        function mouseMoveEvent(x, y){
+            if (pressed){
+                x -= canvasRect.x;
+                y -= canvasRect.y - getScrollY();
+                /* coordenadas referentes a la camara*/
+                x = x - (canvasWidth/2);
+                y = (canvasHeight/2) - y;
+                puntos.push(new Point(x, y));
+                drawStroke(puntos.length - 2, puntos.length - 1);
+        }
+        
+        function mouseUpEvent(x, y){
+            if (pressed){
+                removeObject(stroke,escena);
+                pressed=false;
+                //get3dObject(puntos,20,4);
+                lastTime = Date.now();
+            }
+            
+        }
+
+    }
+    
     </script>
 </head>
 <body onload="webGL_init()">
-    <h1>hola</h1>
-	<div id = "canvas" width=800 height=400
+    <h1>Move it Figure</h1>
+	<div id = "canvas" width=800 height=800
 	style="background-color:#ECF8FA; border:3px solid #000000;"
     onmousedown="mouseDownEvent(event.clientX, event.clientY)"
     onmousemove="mouseMoveEvent(event.clientX, event.clientY)"
