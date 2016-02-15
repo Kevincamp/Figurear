@@ -3,7 +3,15 @@
 <head>
 	<script src="js/three.js"></script>
 	<script type="text/javascript" src="js/ndollar.js"></script>
-	
+    <script type="text/javascript" src="js/Class/class.js"></script>
+    <script type="text/javascript" src="js/poly2tri.js"></script>
+    <script type="text/javascript" src="js/Modules/Triangulation.js"></script>
+    <script type="text/javascript" src="js/Modules/SpineGenerator2.js"></script>
+    <script type="text/javascript" src="js/Modules/Pruning.js"></script>
+    <script type="text/javascript" src="js/Modules/ResamplePoints.js"></script>
+    <script type="text/javascript" src="js/Modules/3dGeneration.js"></script>
+    <script type="text/javascript" src="js/Modules/FinalTriangulation.js"></script>
+    <script type="text/javascript" src="js/Modules/DrawWebGl.js"></script>
 	<script type="text/javascript"> 
 		var escena,escena2;
 		var camara,camara2;
@@ -14,6 +22,20 @@
 		var canvasHeight = 400;
 		var value2 = 10;
 		var lastTime;
+        var geometry;
+        var linea;
+        var puntos;
+        //var spotLight;
+        /* Contiene todas los objetos lineas para la graficacion en opengl del trazo generado por el usuario */
+        var stroke = [];
+        /* Objeto poligono grafico webGl*/
+        var polygonWebGLResample;
+        /* Lista de triangulos webgl del plano basico*/
+        var basicPlaneWebGL=[];
+        /* Lista de triangulos finales webgl */
+        var finalTrianglesWebGl = [];
+        /* Lista de triangulos finales generados despues de la elevacion */
+        var object3DSolid =[];
 		
 		function webGL_init(){
 			document.onselectstart = function() { return false; }
@@ -49,6 +71,57 @@
             render.render(escena, camara);
         }
     
+        function mouseDownEvent(x, y){
+            clearCanvas();
+            pressed = true;
+            /* Coordenadas referentes al div en el cual se va a dibujar*/
+            x -= canvasRect.x;
+            y -= canvasRect.y - getScrollY();
+            /* coordenadas referentes a la camara*/
+            x = x - (canvasWidth/2);
+            y = (canvasHeight/2) - y;
+            puntos.length = 1;
+            puntos[0] = new Point(x, y);
+        }
+    
+        function mouseMoveEvent(x, y){
+            if (pressed){
+                x -= canvasRect.x;
+                y -= canvasRect.y - getScrollY();
+                /* coordenadas referentes a la camara*/
+                x = x - (canvasWidth/2);
+                y = (canvasHeight/2) - y;
+                puntos.push(new Point(x, y));
+                drawStroke(puntos.length - 2, puntos.length - 1);
+            }
+        }
+    
+        function mouseUpEvent(x, y){
+            if (pressed){
+                removeObject(stroke,escena);
+                pressed=false;
+                //get3dObject(puntos,20,4);
+                lastTime = Date.now();
+            }
+        }
+    
+        function get3dObject(puntos,samplePoints1,samplePoints2){
+            /* Genero el plano de triangulos haciendo uso la triangulacion de delauney */
+            var plane = delaunay_triangulation_usingPoly2tri(puntos,samplePoints1);
+            /* Realizo la poda de triangulos para la elevacion */
+            var resultPlanePruning = pruning(plane);
+            /* Genero la espina del stroke para su elevacion */
+            var spine = generateSpine(resultPlanePruning);
+            /* Realizo la triangulacion final */
+            finalTriangulation(resultPlanePruning,spine);
+            /* Obtengo la lista de triangulos para la graficacion en la escena correspondiente  */
+            finalTrianglesWebGl = drawTriangles(resultPlanePruning,escena,false);
+            /* Realizo la triangulacion dandole la coordenada en Z */
+            var object3D = generate3dObject(spine,resultPlanePruning,samplePoints2);
+            /* Obtengo la lista de triangulos webGl para dibujarlos en la escena */
+            //object3DSolid = drawTriangles(object3D,escena2,true);
+        }
+    
         function clearCanvas(){
             /* Remuevo los puntos remuestreados */
             removeObject(polygonWebGLResample, escena);
@@ -82,50 +155,12 @@
             return scrollY;
         }
     
-        function drawStroke(from, to)
-        {
+        function drawStroke(from, to){
             var p1 = [puntos[from].X, puntos[from].Y,0];
             var p2 = [puntos[to].X, puntos[to].Y,0];
             drawStrokeLine(p1,p2,stroke,escena);
             renderEscena();
         }
-    
-        function mouseDownEvent(x, y){
-            //clearCanvas();
-            pressed = true;
-            /* Coordenadas referentes al div en el cual se va a dibujar*/
-            x -= canvasRect.x;
-            y -= canvasRect.y - getScrollY();
-            /* coordenadas referentes a la camara*/
-            x = x - (canvasWidth/2);
-            y = (canvasHeight/2) - y;
-            puntos.length = 1;
-            puntos[0] = new Point(x, y);
-        }
-    
-        function mouseMoveEvent(x, y){
-            if (pressed){
-                x -= canvasRect.x;
-                y -= canvasRect.y - getScrollY();
-                /* coordenadas referentes a la camara*/
-                x = x - (canvasWidth/2);
-                y = (canvasHeight/2) - y;
-                puntos.push(new Point(x, y));
-                drawStroke(puntos.length - 2, puntos.length - 1);
-        }
-        
-        function mouseUpEvent(x, y){
-            if (pressed){
-                removeObject(stroke,escena);
-                pressed=false;
-                //get3dObject(puntos,20,4);
-                lastTime = Date.now();
-            }
-            
-        }
-
-    }
-    
     </script>
 </head>
 <body onload="webGL_init()">
