@@ -11,7 +11,7 @@
         <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
         <title>Figurear</title>
     </head>
-    <body>
+    <body onload="webGLStart()">
         <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
         <script type="text/javascript" src="js/materialize.min.js"></script>
         <titulo> Figurear </titulo>
@@ -38,6 +38,7 @@
             <a href="" target="_blank">Marlon Loayza </a>
         </footer>
         <script type="text/javascript">
+            
             $(document).ready(function() {
                 $(".button-floating").click(function() {
                     var $wrapper = $("#wrapper");
@@ -53,32 +54,50 @@
                     $(".button-sub").click(function() {
                         var color = $(this).data("color");
 
-                        $wrapper.attr("class", "center button-floating-clicked button-floating-clicked-out");
-                        $wrapper.addClass("button-sub-" + color + "-clicked");
+                        if(color == "purple"){
+                            console.info("Dibuja");
+                        } else if(color == "green"){
+                            console.info("Tachuela");
+                        } else if(color == "pink"){
+                            console.info("Mueve");
+                        }else if (color == "indigo"){
+                            console.info("Guarda");
+                        }else{
+                            console.info("No hace nada");
+                        }
+
+                        //$wrapper.attr("class", "center button-floating-clicked button-floating-clicked-out");
+                        //$wrapper.addClass("button-sub-" + color + "-clicked");
                     });
                 });
             });
 
 
-            function mouseDownEvent(x, y)
-            {
-                clearCanvas();
-                /* Coordenadas referentes al div en el cual se va a dibujar*/
-                x -= canvasRect.x +10;
-                y -= canvasRect.y - getScrollY() +10;
+            function mouseDownEvent(x, y) {
+            }
 
-                /* coordenadas referentes a la camara*/
-                x = x*2 - (canvasWidth);
-                y = (canvasHeight) - y*2;
+            function mouseMoveEvent(x,y) {
 
-                pressed = true;
-                    
-                if (nuevo){
-                    puntos_figura.length = 1;
-                    puntos_figura[0] = new Point(x, y);
-                    first_pos = new Point(x, y);
-                    nuevo=false;
-                }
+            }
+
+            function mouseUpEvent(x,y) {
+
+            }
+
+            function webGLStart() {
+                init();
+            }
+            function init(){
+                render = new THREE.WebGLRenderer();
+                render.setClearColor(0xE6E6E6, 1);
+                render.setSize(document.getElementById("wrapper").width, document.getElementById("wrapper").canvasHeight);
+                document.getElementById("wrapper").appendChild(render.domElement);
+                initState();
+            }
+            function initState(){
+                camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 10000 );
+                camera.position.set( 500, 500, 500 );
+                scene = new THREE.Scene();
             }
         </script>
     </body>
