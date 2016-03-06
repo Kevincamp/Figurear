@@ -328,6 +328,6 @@ footer a {
     cursor: default;
     -webkit-transition: all .4s ease-in;
     transition: all .4s ease-in;
-    -webkit-transform: scale(30);
-    transform: scale(30);
+    -webkit-transform: scale(0);
+    transform: scale(0);
 }

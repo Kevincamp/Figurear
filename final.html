@@ -38,7 +38,68 @@
             <a href="" target="_blank">Marlon Loayza </a>
         </footer>
         <script type="text/javascript">
+
+            /* Declaracion de variables */
+            var cantidadTachuela = 0;
+            var puntoInicial = null;
+            var puntoFinal = null;
+            var puntos_figura = [];
+            var puntos_remuestreados =[];
+            var listaLineasFigura=[];
+            var listaTriangulosFigura=[];
+            var listaTriangulos =[];
+            var puntos_malla=[];
+            var list_lineas=[];
+            var lista_tachuelas = [];
+            var pressed = false;
+            var container;
+            var camera, scene, projector, renderer;
+            var particleMaterial;
+            var isRotating=false;
+            var nuevo=false;
+            var mover=false;
+            var tachuela = false;
+            var first_pos ;
+            var last_pos;
+
+
             
+            /* -- Eventos de Botones -- ******************************************* */
+            function doNew(){
+                console.info("entro a doNew");
+                puntos_figura.splice(0,puntos_figura.length);
+                puntos_remuestreados.splice(0,puntos_remuestreados.length);
+                listaLineasFigura.splice(0,listaLineasFigura.length);
+                puntos_malla.splice(0,puntos_malla.length);
+                list_lineas.splice(0,list_lineas.length);
+                lista_tachuelas.splice(0,lista_tachuelas.length);
+                listaTriangulosFigura.splice(0,listaTriangulosFigura.length);
+                listaTriangulos.splice(0,listaTriangulos.length);
+                cantidadTachuela=0;
+                nuevo = true;
+                mover=false;
+                tachuela = false;
+                pressed=false;
+                initState();
+            }
+
+            function putTach(){
+                console.info("Entro a poner tachuelas");
+                tachuela = true;
+                mover = false;
+                nuevo = false;
+                pressed=false;
+            }
+
+            function moveTach(){
+                console.info("Entro a Translacion.");
+                tachuela = false;
+                mover = true;
+                nuevo = false;
+            }
+
+            /* -- Fin de Eventos de Botones -- ******************************************* */
+
             $(document).ready(function() {
                 $(".button-floating").click(function() {
                     var $wrapper = $("#wrapper");
@@ -56,24 +117,56 @@
 
                         if(color == "purple"){
                             console.info("Dibuja");
+                            doNew();
                         } else if(color == "green"){
                             console.info("Tachuela");
+                            putTach();
                         } else if(color == "pink"){
                             console.info("Mueve");
+                            moveTach();
                         }else if (color == "indigo"){
                             console.info("Guarda");
                         }else{
                             console.info("No hace nada");
                         }
-
-                        //$wrapper.attr("class", "center button-floating-clicked button-floating-clicked-out");
-                        //$wrapper.addClass("button-sub-" + color + "-clicked");
+                        $wrapper.attr("class", "button-floating-clicked");
+                        $wrapper.addClass("button-sub-" + color + "-clicked");
                     });
                 });
             });
 
 
             function mouseDownEvent(x, y) {
+                p = get3dPointZAxis(event);
+                var pos=new THREE.Vector3(p.x,p.y+70,0);
+                                   
+
+                if (nuevo){
+                    puntos_figura.length = 1;
+                    puntos_figura[0] = new THREE.Vector3(pos.x, pos.y, 0);
+                    first_pos = puntos_figura[0];
+                    nuevo=false;
+                    pressed=true;
+                    
+                }
+                if(tachuela && cantidadTachuela<1){
+                    cantidadTachuela ++;
+                    console.log("ingresando tachuela");
+                    agregarTachuela(pos.x, pos.y);
+                    //lista_tachuelas.push(punto);
+                    tachuela = false
+                    pressed = false
+                    
+
+                }
+                if(mover) {
+                    var tachue=lista_tachuelas[0];
+                    var x= tachue.position.x;
+                    var y= tachue.position.y;
+                    if (pos.x<= (x+10) && pos.x>=(x-10) && pos.y<= (y+10) && pos.y>= (y-10)){
+                        pressed=true;
+                    }
+                }   
             }
 
             function mouseMoveEvent(x,y) {
@@ -85,20 +178,25 @@
             }
 
             function webGLStart() {
+                console.info("Entro a WebGLStart");
                 init();
             }
             function init(){
+                console.info("Entro a init");
                 render = new THREE.WebGLRenderer();
                 render.setClearColor(0xE6E6E6, 1);
                 render.setSize(document.getElementById("wrapper").width, document.getElementById("wrapper").canvasHeight);
                 document.getElementById("wrapper").appendChild(render.domElement);
                 initState();
             }
+
             function initState(){
+                console.info("Entro a initState");
                 camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 10000 );
                 camera.position.set( 500, 500, 500 );
                 scene = new THREE.Scene();
             }
+            
         </script>
     </body>
 </html>
