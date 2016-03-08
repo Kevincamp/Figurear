@@ -20,16 +20,17 @@
                     onmousemove="mouseMoveEvent(event.clientX, event.clientY)"
                     onmouseup="mouseUpEvent(event.clientX, event.clientY)"
                     oncontextmenu="return false;">
-            <div class="water-drop"></div>
-            <div class="button button-floating"></div>
-            <div class="button-floating-shadow"></div>
-            <div class="button button-sub" data-color="purple">
+        
+            <div class="water-drop" style="z-index: 1;position: absolute;"></div>
+            <div class="button button-floating" style="z-index: 100;position: absolute;"></div>
+            <div class="button-floating-shadow" style="z-index: 10;position: absolute;"></div>
+            <div class="button button-sub" data-color="purple" style="z-index: 10;position: absolute;float:left;">
             </div>
-            <div class="button button-sub" data-color="green">
+            <div class="button button-sub" data-color="green" style="z-index: 10;position: absolute; float:left;">
             </div>
-            <div class="button button-sub" data-color="pink">
+            <div class="button button-sub" data-color="pink" style="z-index: 10;position: absolute; float:left;">
             </div>
-            <div class="button button-sub" data-color="indigo">
+            <div class="button button-sub" data-color="indigo" style="z-index: 10;position: absolute; float:left;">
             </div>
         </div>
         <footer>
@@ -495,7 +496,7 @@
                 console.info("Entro a init");
                 renderer = new THREE.WebGLRenderer();
                 renderer.setClearColor(0xE6E6E6, 1);
-                renderer.setSize(document.getElementById("wrapper").width, document.getElementById("wrapper").canvasHeight);
+                renderer.setSize(document.getElementById("wrapper").offsetWidth, document.getElementById("wrapper").offsetHeight);
                 document.getElementById("wrapper").appendChild(renderer.domElement);
                 initState();
             }
@@ -503,7 +504,7 @@
             function initState(){
                 console.info("Entro a initState");
                 camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 10000 );
-                camera.position.set( 500, 500, 500 );
+                camera.position.set( 0, 0, 500 );
                 scene = new THREE.Scene();
             }
 
